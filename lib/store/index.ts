@@ -2,10 +2,12 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import createSagaMiddleware from "redux-saga";
 
 import { appReducer } from "@/lib/features/app/appSlice";
+import { authReducer } from "@/lib/features/auth/authSlice";
 import { rootSaga } from "@/lib/sagas/rootSaga";
 
 const rootReducer = combineReducers({
   app: appReducer,
+  auth: authReducer,
 });
 
 export const makeStore = () => {
