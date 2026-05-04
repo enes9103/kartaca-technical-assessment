@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useEffect } from "react";
@@ -82,6 +83,15 @@ export default function LoginPage() {
           {authState.error ? (
             <p className="mt-2 text-sm text-rose-300">{authState.error}</p>
           ) : null}
+        </div>
+
+        <div className="mt-6 flex gap-3">
+          <Link
+            href="/users"
+            className="rounded-full border border-white/15 px-4 py-2 text-sm transition hover:bg-white/5"
+          >
+            Users
+          </Link>
         </div>
       </div>
     </main>
