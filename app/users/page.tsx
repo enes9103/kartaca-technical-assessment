@@ -48,6 +48,22 @@ export default function UsersPage() {
               : "User not authenticated yet"}
           </p>
         </div>
+
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
+          {[1, 2, 3].map((userId) => (
+            <Link
+              key={userId}
+              href={`/users/${userId}`}
+              className="rounded-3xl border border-white/10 bg-slate-900/70 p-5 transition hover:border-cyan-400/40 hover:bg-slate-900"
+            >
+              <p className="text-sm text-slate-400">Mock User #{userId}</p>
+              <h2 className="mt-2 text-xl font-medium">Detail Page Link</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-300">
+                Real implementation will fetch later and display user details here.
+              </p>
+            </Link>
+          ))}
+        </div>
       </div>
     </main>
   );
