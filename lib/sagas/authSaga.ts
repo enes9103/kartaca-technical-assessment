@@ -7,6 +7,9 @@ import {
   loginSucceeded,
   logoutRequested,
   logoutSucceeded,
+  sessionFailed,
+  sessionRequested,
+  sessionSucceeded,
   type LoginPayload,
 } from "@/lib/features/auth/authSlice";
 import type { AuthUser } from "@/lib/features/auth/authTypes";
@@ -52,10 +55,27 @@ function* loginFlow(action: PayloadAction<LoginPayload>) {
 }
 
 function* logoutFlow() {
+  yield call(requestJson, "/api/auth/logout", {
+    method: "POST",
+  });
   yield put(logoutSucceeded());
+}
+
+function* sessionFlow() {
+  try {
+    const data: AuthSuccessResponse = yield call(requestJson, "/api/auth/me", {
+      method: "GET",
+      cache: "no-store",
+    });
+
+    yield put(sessionSucceeded(data.user));
+  } catch {
+    yield put(sessionFailed());
+  }
 }
 
 export function* authSaga() {
   yield takeLatest(loginRequested.type, loginFlow);
+  yield takeLatest(sessionRequested.type, sessionFlow);
   yield takeLatest(logoutRequested.type, logoutFlow);
 }
