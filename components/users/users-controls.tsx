@@ -45,20 +45,20 @@ export function UsersControls({
   buildBaseParams,
 }: UsersControlsProps) {
   return (
-    <section className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-5">
+    <section className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
       <form action="/users" className="grid gap-3 lg:grid-cols-12">
         <input
           type="text"
           name="q"
           defaultValue={q}
           placeholder="Search all users"
-          className="lg:col-span-5 rounded-xl border border-white/15 bg-slate-900/80 px-4 py-2 text-sm outline-none transition focus:border-cyan-400"
+          className="lg:col-span-5 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-slate-500"
         />
 
         <select
           name="city"
           defaultValue={selectedCity}
-          className="lg:col-span-2 rounded-xl border border-white/15 bg-slate-900/80 px-3 py-2 text-sm outline-none transition focus:border-cyan-400"
+          className="lg:col-span-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-slate-500"
         >
           <option value="">All City</option>
           {filterOptions.cities.map((city) => (
@@ -71,7 +71,7 @@ export function UsersControls({
         <select
           name="jobTitle"
           defaultValue={selectedJobTitle}
-          className="lg:col-span-2 rounded-xl border border-white/15 bg-slate-900/80 px-3 py-2 text-sm outline-none transition focus:border-cyan-400"
+          className="lg:col-span-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-slate-500"
         >
           <option value="">All Title</option>
           {filterOptions.jobTitles.map((title) => (
@@ -84,7 +84,7 @@ export function UsersControls({
         <select
           name="gender"
           defaultValue={selectedGender}
-          className="lg:col-span-2 rounded-xl border border-white/15 bg-slate-900/80 px-3 py-2 text-sm outline-none transition focus:border-cyan-400"
+          className="lg:col-span-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-slate-500"
         >
           <option value="">All gender</option>
           {filterOptions.genders.map((gender) => (
@@ -103,7 +103,7 @@ export function UsersControls({
           ) : null}
           <button
             type="submit"
-            className="w-full rounded-xl bg-cyan-400 px-3 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-300"
+            className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-50"
           >
             Search
           </button>
@@ -119,7 +119,7 @@ export function UsersControls({
               page: "1",
             }),
           )}`}
-          className="rounded-full border border-white/15 px-3 py-1.5 text-xs transition hover:bg-white/5"
+          className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-700 transition hover:bg-slate-50"
         >
           Sort by Name ({firstNameSort.label})
         </Link>
@@ -131,14 +131,14 @@ export function UsersControls({
               page: "1",
             }),
           )}`}
-          className="rounded-full border border-white/15 px-3 py-1.5 text-xs transition hover:bg-white/5"
+          className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-700 transition hover:bg-slate-50"
         >
           Sort by Age ({ageSort.label})
         </Link>
         {(hasActiveFilter || hasSearch || (sortBy && order)) && (
           <Link
             href="/users"
-            className="rounded-full border border-white/15 px-3 py-1.5 text-xs transition hover:bg-white/5"
+            className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-700 transition hover:bg-slate-50"
           >
             Clear
           </Link>

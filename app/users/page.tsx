@@ -217,7 +217,7 @@ export default async function UsersPage({
   const selectedGender = activeFilter?.field === "gender" ? activeFilter.value : "";
 
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-16 text-slate-50">
+    <main className="min-h-screen bg-slate-100 px-6 py-6 text-slate-800">
       <div className="mx-auto max-w-7xl">
         {isAuthenticated ? (
           <UsersControls
@@ -238,7 +238,7 @@ export default async function UsersPage({
           />
         ) : null}
 
-        <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <section className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {usersData.users.map((user) => (
             <UserCard
               key={user.id}

@@ -8,37 +8,40 @@ import { useAppSelector } from "@/lib/store/hooks";
 export default function UserDetailPage() {
   const params = useParams<{ id: string }>();
   const authState = useAppSelector((state) => state.auth);
+  const activeUser = authState.user
+    ? `${authState.user.firstName} ${authState.user.lastName}`.trim()
+    : "";
 
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-16 text-slate-50">
-      <div className="mx-auto max-w-4xl rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-slate-950/40">
-        <p className="text-sm text-slate-400">User Detail Route</p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight">
+    <main className="min-h-screen bg-slate-100 px-6 py-6 text-slate-800">
+      <div className="mx-auto max-w-4xl rounded-lg border border-slate-200 bg-white p-6">
+        <p className="text-sm text-slate-500">User Detail Page</p>
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-800">
           User #{params.id}
         </h1>
-        
-        <div className="mt-8 rounded-2xl border border-white/10 bg-slate-900/70 p-5">
-          <p className="text-sm text-slate-400">Auth Snapshot</p>
-          <p className="mt-2 text-lg font-medium capitalize">
+
+        <div className="mt-6 rounded-md border border-slate-200 bg-slate-50 p-4">
+          <p className="text-sm text-slate-500">Auth Snapshot</p>
+          <p className="mt-1 text-base font-medium capitalize text-slate-700">
             {authState.status}
           </p>
-          <p className="mt-2 text-sm text-slate-300">
+          <p className="mt-1 text-sm text-slate-600">
             {authState.isAuthenticated
-              ? `Authenticated as ${authState.username}`
+              ? `Authenticated as ${activeUser}`
               : "No authenticated user"}
           </p>
         </div>
 
-        <div className="mt-8 flex gap-3">
+        <div className="mt-6 flex gap-3">
           <Link
             href="/users"
-            className="rounded-full border border-white/15 px-4 py-2 text-sm transition hover:bg-white/5"
+            className="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-700 transition hover:bg-slate-50"
           >
             Back to Users
           </Link>
           <Link
             href="/login"
-            className="rounded-full border border-white/15 px-4 py-2 text-sm transition hover:bg-white/5"
+            className="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-700 transition hover:bg-slate-50"
           >
             Login
           </Link>

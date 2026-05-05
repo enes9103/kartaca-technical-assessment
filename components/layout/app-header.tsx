@@ -13,18 +13,18 @@ export function AppHeader() {
     : "";
 
   return (
-    <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/95 backdrop-blur">
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-6">
+    <header className="sticky top-0 z-20 border-b border-slate-200 bg-white">
+      <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between px-6">
         <Link
           href="/users"
-          className="text-sm font-semibold tracking-wide text-slate-100"
+          className="text-sm font-semibold tracking-wide text-slate-700"
         >
-          Employee Social
+          Employee Directory
         </Link>
 
         <div className="flex items-center gap-3">
           {isAuthenticated ? (
-            <p className="text-sm text-slate-300">Welcome, {userName}</p>
+            <p className="text-sm text-slate-600">Welcome, {userName}</p>
           ) : null}
 
           {isAuthenticated ? (
@@ -32,7 +32,7 @@ export function AppHeader() {
           ) : (
             <Link
               href="/login"
-              className="rounded-full bg-cyan-400 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-300"
+              className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 transition hover:bg-slate-50"
             >
               Login
             </Link>

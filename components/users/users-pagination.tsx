@@ -32,16 +32,16 @@ export function UsersPagination({
             page: String(prevPage),
           }),
         )}`}
-        className={`rounded-lg border px-3 py-2 text-sm ${
+        className={`rounded-md border px-3 py-1.5 text-sm ${
           currentPage === 1
-            ? "pointer-events-none border-white/10 text-slate-500"
-            : "border-white/20 text-slate-200 hover:bg-white/5"
+            ? "pointer-events-none border-slate-200 text-slate-400"
+            : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
         }`}
       >
         Prev
       </Link>
 
-      <span className="rounded-lg border border-white/10 px-3 py-2 text-sm text-slate-300">
+      <span className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700">
         {currentPage} / {totalPages}
       </span>
 
@@ -51,10 +51,10 @@ export function UsersPagination({
             page: String(nextPage),
           }),
         )}`}
-        className={`rounded-lg border px-3 py-2 text-sm ${
+        className={`rounded-md border px-3 py-1.5 text-sm ${
           currentPage >= totalPages
-            ? "pointer-events-none border-white/10 text-slate-500"
-            : "border-white/20 text-slate-200 hover:bg-white/5"
+            ? "pointer-events-none border-slate-200 text-slate-400"
+            : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
         }`}
       >
         Next
