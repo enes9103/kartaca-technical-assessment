@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Provider } from "react-redux";
 
 import { bootstrapRequested } from "@/lib/features/app/appSlice";
+import { sessionRequested } from "@/lib/features/auth/authSlice";
 import { makeStore } from "@/lib/store";
 
 type StoreProviderProps = {
@@ -15,6 +16,7 @@ export function StoreProvider({ children }: StoreProviderProps) {
 
   useEffect(() => {
     store.dispatch(bootstrapRequested());
+    store.dispatch(sessionRequested());
   }, [store]);
 
   return <Provider store={store}>{children}</Provider>;

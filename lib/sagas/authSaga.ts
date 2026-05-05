@@ -1,5 +1,5 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { delay, put, takeLatest } from "redux-saga/effects";
+import { call, put, takeLatest } from "redux-saga/effects";
 
 import {
   loginFailed,
@@ -9,27 +9,45 @@ import {
   logoutSucceeded,
   type LoginPayload,
 } from "@/lib/features/auth/authSlice";
+import type { AuthUser } from "@/lib/features/auth/authTypes";
+
+type AuthSuccessResponse = {
+  user: AuthUser;
+};
+
+type AuthErrorResponse = {
+  message?: string;
+};
+
+function requestJson<T>(input: RequestInfo, init?: RequestInit) {
+  return fetch(input, init).then(async (response) => {
+    const data = (await response.json()) as T & AuthErrorResponse;
+
+    if (!response.ok) {
+      throw new Error(data.message ?? "Request failed.");
+    }
+
+    return data;
+  });
+}
 
 function* loginFlow(action: PayloadAction<LoginPayload>) {
   try {
-    yield delay(250);
+    const data: AuthSuccessResponse = yield call(requestJson, "/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(action.payload),
+    });
 
-    const { username, password } = action.payload;
-
-    //  This is a mock authentication flow. In a real application, you would make an API call here.
-    if (username === "demo" && password === "demo123") {
-      yield put(
-        loginSucceeded({
-          token: "mock-token",
-          username,
-        }),
-      );
-      return;
-    }
-
-    yield put(loginFailed("Username or password is incorrect."));
-  } catch {
-    yield put(loginFailed("An error occurred while processing the login request."));
+    yield put(loginSucceeded(data.user));
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "An error occurred while processing the login request.";
+    yield put(loginFailed(message));
   }
 }
 

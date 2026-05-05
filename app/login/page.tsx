@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { loginRequested } from "@/lib/features/auth/authSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
@@ -14,6 +13,10 @@ export default function LoginPage() {
   const authState = useAppSelector((state) => state.auth);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<{
+    username?: string;
+    password?: string;
+  }>({});
 
   useEffect(() => {
     if (authState.isAuthenticated) {
@@ -24,10 +27,29 @@ export default function LoginPage() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    const nextErrors: {
+      username?: string;
+      password?: string;
+    } = {};
+
+    if (!username.trim()) {
+      nextErrors.username = "Username is required.";
+    }
+
+    if (!password.trim()) {
+      nextErrors.password = "Password is required.";
+    }
+
+    setErrors(nextErrors);
+
+    if (Object.keys(nextErrors).length > 0) {
+      return;
+    }
+
     dispatch(
       loginRequested({
-        username,
-        password,
+        username: username.trim(),
+        password: password.trim(),
       }),
     );
   };
@@ -38,7 +60,8 @@ export default function LoginPage() {
         <p className="text-sm text-slate-400">Login Route</p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight">Sign in</h1>
         <p className="mt-2 text-sm leading-6 text-slate-300">
-          Demo credentials: <span className="font-medium">demo / demo123</span>
+          Demo credentials:{" "}
+          <span className="font-medium">emilys / emilyspass</span>
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
@@ -48,10 +71,18 @@ export default function LoginPage() {
             </span>
             <input
               value={username}
-              onChange={(event) => setUsername(event.target.value)}
+              onChange={(event) => {
+                setUsername(event.target.value);
+                if (errors.username) {
+                  setErrors((current) => ({ ...current, username: undefined }));
+                }
+              }}
               className="w-full rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3 outline-none transition focus:border-cyan-400"
-              placeholder="demo"
+              placeholder="emilys"
             />
+            {errors.username ? (
+              <p className="mt-2 text-sm text-rose-300">{errors.username}</p>
+            ) : null}
           </label>
 
           <label className="block">
@@ -61,14 +92,23 @@ export default function LoginPage() {
             <input
               type="password"
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) => {
+                setPassword(event.target.value);
+                if (errors.password) {
+                  setErrors((current) => ({ ...current, password: undefined }));
+                }
+              }}
               className="w-full rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3 outline-none transition focus:border-cyan-400"
-              placeholder="demo123"
+              placeholder="emilyspass"
             />
+            {errors.password ? (
+              <p className="mt-2 text-sm text-rose-300">{errors.password}</p>
+            ) : null}
           </label>
 
           <button
             type="submit"
+            disabled={authState.status === "loading"}
             className="w-full rounded-2xl bg-cyan-400 px-4 py-3 font-medium text-slate-950 transition hover:bg-cyan-300"
           >
             {authState.status === "loading" ? "Signing in..." : "Login"}
@@ -82,6 +122,12 @@ export default function LoginPage() {
           </p>
           {authState.error ? (
             <p className="mt-2 text-sm text-rose-300">{authState.error}</p>
+          ) : null}
+          {authState.user ? (
+            <p className="mt-2 text-sm text-emerald-300">
+              Session ready for {authState.user.firstName}{" "}
+              {authState.user.lastName}
+            </p>
           ) : null}
         </div>
 

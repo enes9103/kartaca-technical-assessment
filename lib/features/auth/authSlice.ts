@@ -1,21 +1,21 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-export type LoginPayload = {
-  username: string;
-  password: string;
-};
+import type { AuthUser, LoginPayload } from "@/lib/features/auth/authTypes";
 
 type AuthState = {
-  token: string | null;
-  username: string | null;
+  user: AuthUser | null;
   isAuthenticated: boolean;
-  status: "idle" | "loading" | "authenticated" | "error";
+  status:
+    | "idle"
+    | "loading"
+    | "authenticated"
+    | "error"
+    | "checking-session";
   error: string | null;
 };
 
 const initialState: AuthState = {
-  token: null,
-  username: null,
+  user: null,
   isAuthenticated: false,
   status: "idle",
   error: null,
@@ -25,24 +25,35 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    loginRequested: (state, action: PayloadAction<LoginPayload>) => {
+    loginRequested: (state, _action: PayloadAction<LoginPayload>) => {
       state.status = "loading";
       state.error = null;
-      void action;
+      void _action;
     },
-    loginSucceeded: (
-      state,
-      action: PayloadAction<{ token: string; username: string }>,
-    ) => {
-      state.token = action.payload.token;
-      state.username = action.payload.username;
+    loginSucceeded: (state, action: PayloadAction<AuthUser>) => {
+      state.user = action.payload;
       state.isAuthenticated = true;
       state.status = "authenticated";
       state.error = null;
     },
+    sessionRequested: (state) => {
+      state.status = "checking-session";
+      state.error = null;
+    },
+    sessionSucceeded: (state, action: PayloadAction<AuthUser>) => {
+      state.user = action.payload;
+      state.isAuthenticated = true;
+      state.status = "authenticated";
+      state.error = null;
+    },
+    sessionFailed: (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+      state.status = "idle";
+      state.error = null;
+    },
     loginFailed: (state, action: PayloadAction<string>) => {
-      state.token = null;
-      state.username = null;
+      state.user = null;
       state.isAuthenticated = false;
       state.status = "error";
       state.error = action.payload;
@@ -51,8 +62,7 @@ const authSlice = createSlice({
       state.status = "idle";
     },
     logoutSucceeded: (state) => {
-      state.token = null;
-      state.username = null;
+      state.user = null;
       state.isAuthenticated = false;
       state.status = "idle";
       state.error = null;
@@ -63,6 +73,9 @@ const authSlice = createSlice({
 export const {
   loginRequested,
   loginSucceeded,
+  sessionRequested,
+  sessionSucceeded,
+  sessionFailed,
   loginFailed,
   logoutRequested,
   logoutSucceeded,
