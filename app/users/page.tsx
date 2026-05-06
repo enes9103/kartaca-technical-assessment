@@ -1,64 +1,23 @@
 import { cookies } from "next/headers";
 
 import type {
-  SortState,
   UsersResponse,
   UsersSearchParams,
 } from "@/components/users/types";
-import { UserCard } from "@/components/users/user-card";
 import { UsersControls } from "@/components/users/users-controls";
+import { UsersEmptyState } from "@/components/users/users-empty-state";
+import { UsersGrid } from "@/components/users/users-grid";
 import { UsersPagination } from "@/components/users/users-pagination";
+import {
+  buildBaseParams,
+  getActiveFilter,
+  getSortState,
+  makeQueryString,
+  matchesActiveFilter,
+  toPositiveInt,
+} from "@/lib/helpers/users";
 
 const PAGE_SIZE = 12;
-
-function toPositiveInt(value: string | undefined, fallback: number) {
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed) || parsed < 1) {
-    return fallback;
-  }
-
-  return Math.floor(parsed);
-}
-
-function makeQueryString(params: Record<string, string | undefined>) {
-  const query = new URLSearchParams();
-
-  for (const [key, value] of Object.entries(params)) {
-    if (value && value.trim().length > 0) {
-      query.set(key, value);
-    }
-  }
-
-  return query.toString();
-}
-
-function getSortState(
-  currentSortBy: UsersSearchParams["sortBy"],
-  currentOrder: UsersSearchParams["order"],
-  targetField: "firstName" | "age",
-): SortState {
-  if (currentSortBy !== targetField) {
-    return {
-      sortBy: targetField,
-      order: "asc" as const,
-      label: "asc" as const,
-    };
-  }
-
-  if (currentOrder === "asc") {
-    return {
-      sortBy: targetField,
-      order: "desc" as const,
-      label: "desc" as const,
-    };
-  }
-
-  return {
-    sortBy: undefined,
-    order: undefined,
-    label: "off" as const,
-  };
-}
 
 async function fetchUsers(url: string): Promise<UsersResponse> {
   const response = await fetch(url, { cache: "no-store" });
@@ -100,66 +59,6 @@ async function fetchFilterOptions() {
   return { cities, jobTitles, genders };
 }
 
-function matchesActiveFilter(
-  user: UsersResponse["users"][number],
-  activeFilter: { field: "city" | "jobTitle" | "gender"; value: string },
-) {
-  if (activeFilter.field === "city") {
-    return (user.address?.city ?? "") === activeFilter.value;
-  }
-
-  if (activeFilter.field === "jobTitle") {
-    return (user.company?.title ?? "") === activeFilter.value;
-  }
-
-  return (user.gender ?? "") === activeFilter.value;
-}
-
-function buildBaseParams(
-  current: UsersSearchParams,
-  overrides: Partial<UsersSearchParams> = {},
-) {
-  const merged = {
-    page: current.page,
-    q: current.q,
-    sortBy: current.sortBy,
-    order: current.order,
-    city: current.city,
-    jobTitle: current.jobTitle,
-    gender: current.gender,
-    ...overrides,
-  };
-
-  return {
-    page: merged.page,
-    q: merged.q,
-    sortBy: merged.sortBy,
-    order: merged.order,
-    city: merged.city,
-    jobTitle: merged.jobTitle,
-    gender: merged.gender,
-  };
-}
-
-function getActiveFilter(params: UsersSearchParams) {
-  const city = params.city?.trim();
-  const jobTitle = params.jobTitle?.trim();
-  const gender = params.gender?.trim();
-
-  if (city) {
-    return { field: "city" as const, value: city };
-  }
-
-  if (jobTitle) {
-    return { field: "jobTitle" as const, value: jobTitle };
-  }
-
-  if (gender) {
-    return { field: "gender" as const, value: gender };
-  }
-
-  return null;
-}
 
 export default async function UsersPage({
   searchParams,
@@ -284,15 +183,7 @@ export default async function UsersPage({
 
         {usersData.users.length > 0 ? (
           <>
-            <section className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {usersData.users.map((user) => (
-                <UserCard
-                  key={user.id}
-                  user={user}
-                  isAuthenticated={isAuthenticated}
-                />
-              ))}
-            </section>
+            <UsersGrid users={usersData.users} isAuthenticated={isAuthenticated} />
 
             <UsersPagination
               currentPage={currentPage}
@@ -307,9 +198,7 @@ export default async function UsersPage({
             />
           </>
         ) : (
-          <section className="text-center mt-4 rounded-lg border border-slate-200 bg-white px-4 py-6 text-sm text-slate-600">
-            No results found for this search.
-          </section>
+          <UsersEmptyState />
         )}
       </div>
     </main>
