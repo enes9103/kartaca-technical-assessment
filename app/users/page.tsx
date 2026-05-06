@@ -71,7 +71,7 @@ async function fetchUsers(url: string): Promise<UsersResponse> {
 }
 
 async function fetchFilterOptions() {
-  const response = await fetch("https://dummyjson.com/users?limit=300", {
+  const response = await fetch("https://dummyjson.com/users?limit=0", {
     cache: "no-store",
   });
 
@@ -98,6 +98,21 @@ async function fetchFilterOptions() {
   ).sort((a, b) => a.localeCompare(b));
 
   return { cities, jobTitles, genders };
+}
+
+function matchesActiveFilter(
+  user: UsersResponse["users"][number],
+  activeFilter: { field: "city" | "jobTitle" | "gender"; value: string },
+) {
+  if (activeFilter.field === "city") {
+    return (user.address?.city ?? "") === activeFilter.value;
+  }
+
+  if (activeFilter.field === "jobTitle") {
+    return (user.company?.title ?? "") === activeFilter.value;
+  }
+
+  return (user.gender ?? "") === activeFilter.value;
 }
 
 function buildBaseParams(
@@ -164,42 +179,73 @@ export default async function UsersPage({
 
   const activeFilter = isAuthenticated ? getActiveFilter(params) : null;
 
-  const endpoint = hasSearch
-    ? "https://dummyjson.com/users/search"
-    : activeFilter
-      ? "https://dummyjson.com/users/filter"
-      : "https://dummyjson.com/users";
+  let usersData: UsersResponse;
+  let totalPages = 1;
 
-  const query = new URLSearchParams({
-    limit: String(PAGE_SIZE),
-    skip: String(skip),
-  });
+  if (hasSearch && activeFilter) {
+    const searchAllQuery = new URLSearchParams({
+      q,
+      limit: "0",
+    });
 
-  if (hasSearch) {
-    query.set("q", q);
+    if (sortBy && order) {
+      searchAllQuery.set("sortBy", sortBy);
+      searchAllQuery.set("order", order);
+    }
+
+    const searchAllData = await fetchUsers(
+      `https://dummyjson.com/users/search?${searchAllQuery.toString()}`,
+    );
+    const filteredUsers = searchAllData.users.filter((user) =>
+      matchesActiveFilter(user, activeFilter),
+    );
+    const pagedUsers = filteredUsers.slice(skip, skip + PAGE_SIZE);
+
+    usersData = {
+      users: pagedUsers,
+      total: filteredUsers.length,
+      skip,
+      limit: PAGE_SIZE,
+    };
+    totalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
+  } else {
+    const endpoint = hasSearch
+      ? "https://dummyjson.com/users/search"
+      : activeFilter
+        ? "https://dummyjson.com/users/filter"
+        : "https://dummyjson.com/users";
+
+    const query = new URLSearchParams({
+      limit: String(PAGE_SIZE),
+      skip: String(skip),
+    });
+
+    if (hasSearch) {
+      query.set("q", q);
+    }
+
+    if (activeFilter) {
+      const keyMap = {
+        city: "address.city",
+        jobTitle: "company.title",
+        gender: "gender",
+      } as const;
+      query.set("key", keyMap[activeFilter.field]);
+      query.set("value", activeFilter.value);
+    }
+
+    if (sortBy && order) {
+      query.set("sortBy", sortBy);
+      query.set("order", order);
+    }
+
+    if (!isAuthenticated) {
+      query.set("select", "id,firstName,lastName,age,gender,image");
+    }
+
+    usersData = await fetchUsers(`${endpoint}?${query.toString()}`);
+    totalPages = Math.max(1, Math.ceil(usersData.total / PAGE_SIZE));
   }
-
-  if (activeFilter) {
-    const keyMap = {
-      city: "address.city",
-      jobTitle: "company.title",
-      gender: "gender",
-    } as const;
-    query.set("key", keyMap[activeFilter.field]);
-    query.set("value", activeFilter.value);
-  }
-
-  if (sortBy && order) {
-    query.set("sortBy", sortBy);
-    query.set("order", order);
-  }
-
-  if (!isAuthenticated) {
-    query.set("select", "id,firstName,lastName,age,gender,image");
-  }
-
-  const usersData = await fetchUsers(`${endpoint}?${query.toString()}`);
-  const totalPages = Math.max(1, Math.ceil(usersData.total / PAGE_SIZE));
 
   const filterOptions = isAuthenticated
     ? await fetchFilterOptions()
@@ -233,30 +279,36 @@ export default async function UsersPage({
             selectedGender={selectedGender}
             hasSearch={hasSearch}
             hasActiveFilter={Boolean(activeFilter)}
-            makeQueryString={makeQueryString}
-            buildBaseParams={buildBaseParams}
           />
         ) : null}
 
-        <section className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {usersData.users.map((user) => (
-            <UserCard
-              key={user.id}
-              user={user}
-              isAuthenticated={isAuthenticated}
-            />
-          ))}
-        </section>
+        {usersData.users.length > 0 ? (
+          <>
+            <section className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {usersData.users.map((user) => (
+                <UserCard
+                  key={user.id}
+                  user={user}
+                  isAuthenticated={isAuthenticated}
+                />
+              ))}
+            </section>
 
-        <UsersPagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          prevPage={prevPage}
-          nextPage={nextPage}
-          params={params}
-          makeQueryString={makeQueryString}
-          buildBaseParams={buildBaseParams}
-        />
+            <UsersPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              prevPage={prevPage}
+              nextPage={nextPage}
+              params={params}
+              makeQueryString={makeQueryString}
+              buildBaseParams={buildBaseParams}
+            />
+          </>
+        ) : (
+          <section className="text-center mt-4 rounded-lg border border-slate-200 bg-white px-4 py-6 text-sm text-slate-600">
+            No results found for this search.
+          </section>
+        )}
       </div>
     </main>
   );
