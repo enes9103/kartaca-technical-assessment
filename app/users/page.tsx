@@ -297,6 +297,8 @@ export default async function UsersPage({
             <UsersPagination
               currentPage={currentPage}
               totalPages={totalPages}
+              totalItems={usersData.total}
+              pageSize={PAGE_SIZE}
               prevPage={prevPage}
               nextPage={nextPage}
               params={params}

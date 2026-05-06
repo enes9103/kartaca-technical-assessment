@@ -116,28 +116,18 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-4 rounded border border-slate-200 bg-slate-50 p-3">
-          <p className="text-xs text-slate-600">Auth State</p>
-          <p className="mt-1 text-sm font-medium capitalize text-slate-700">
-            {authState.status}
+        {authState.error ? (
+          <p className="mt-3 text-center text-xs text-rose-600">
+            {authState.error}
           </p>
-          {authState.error ? (
-            <p className="mt-1 text-xs text-rose-600">{authState.error}</p>
-          ) : null}
-          {authState.user ? (
-            <p className="mt-1 text-xs text-emerald-700">
-              Session ready for {authState.user.firstName}{" "}
-              {authState.user.lastName}
-            </p>
-          ) : null}
-        </div>
+        ) : null}
 
-        <div className="mt-4 flex justify-center gap-3">
+        <div className="mt-5 flex justify-center">
           <Link
             href="/users"
-            className="rounded border border-slate-300 px-3 py-1.5 text-xs text-slate-700 transition hover:bg-slate-50"
+            className="text-sm font-medium text-slate-600 transition hover:text-slate-900"
           >
-            Users
+            Go to Main Page
           </Link>
         </div>
       </div>

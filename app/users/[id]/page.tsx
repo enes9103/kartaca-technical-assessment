@@ -209,7 +209,12 @@ export default async function UserDetailPage({
     );
   }
 
-  const totalPages = Math.max(1, Math.ceil(postsData.total / postsData.limit));
+  const safeLimit =
+    Number.isFinite(postsData.limit) && postsData.limit > 0
+      ? postsData.limit
+      : POSTS_PAGE_SIZE;
+  const hasPosts = postsData.total > 0 && postsData.posts.length > 0;
+  const totalPages = Math.max(1, Math.ceil(postsData.total / safeLimit));
   const prevPage = Math.max(1, currentPage - 1);
   const nextPage = Math.min(totalPages, currentPage + 1);
 
@@ -280,64 +285,72 @@ export default async function UserDetailPage({
             </p>
           </div>
 
-          <div className="space-y-3">
-            {postsData.posts.map((post) => {
-              const reactions = getReactionCount(post.reactions);
+          {hasPosts ? (
+            <>
+              <div className="space-y-3">
+                {postsData.posts.map((post) => {
+                  const reactions = getReactionCount(post.reactions);
 
-              return (
-                <article
-                  key={post.id}
-                  className="rounded-md border border-slate-200 bg-white p-4"
+                  return (
+                    <article
+                      key={post.id}
+                      className="rounded-md border border-slate-200 bg-white p-4"
+                    >
+                      <h3 className="text-xl font-semibold text-slate-800">{post.title}</h3>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">{post.body}</p>
+
+                      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex flex-wrap gap-1.5">
+                          {post.tags.map((tag) => (
+                            <span
+                              key={`${post.id}-${tag}`}
+                              className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-3 text-xs">
+                          <span className="text-emerald-600">↑ {reactions.likes}</span>
+                          <span className="text-rose-600">↓ {reactions.dislikes}</span>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+
+              <nav className="mt-6 flex items-center justify-center gap-2">
+                <Link
+                  href={`/users/${resolvedParams.id}?page=${prevPage}`}
+                  className={`rounded border px-3 py-1.5 text-sm ${
+                    currentPage === 1
+                      ? "pointer-events-none border-slate-200 text-slate-400"
+                      : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                  }`}
                 >
-                  <h3 className="text-xl font-semibold text-slate-800">{post.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">{post.body}</p>
-
-                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex flex-wrap gap-1.5">
-                      {post.tags.map((tag) => (
-                        <span
-                          key={`${post.id}-${tag}`}
-                          className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="flex items-center gap-3 text-xs">
-                      <span className="text-emerald-600">↑ {reactions.likes}</span>
-                      <span className="text-rose-600">↓ {reactions.dislikes}</span>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-
-          <nav className="mt-6 flex items-center justify-center gap-2">
-            <Link
-              href={`/users/${resolvedParams.id}?page=${prevPage}`}
-              className={`rounded border px-3 py-1.5 text-sm ${
-                currentPage === 1
-                  ? "pointer-events-none border-slate-200 text-slate-400"
-                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-              }`}
-            >
-              Prev
-            </Link>
-            <span className="rounded border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700">
-              {currentPage} / {totalPages}
-            </span>
-            <Link
-              href={`/users/${resolvedParams.id}?page=${nextPage}`}
-              className={`rounded border px-3 py-1.5 text-sm ${
-                currentPage >= totalPages
-                  ? "pointer-events-none border-slate-200 text-slate-400"
-                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-              }`}
-            >
-              Next
-            </Link>
-          </nav>
+                  Prev
+                </Link>
+                <span className="rounded border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700">
+                  {currentPage} / {totalPages}
+                </span>
+                <Link
+                  href={`/users/${resolvedParams.id}?page=${nextPage}`}
+                  className={`rounded border px-3 py-1.5 text-sm ${
+                    currentPage >= totalPages
+                      ? "pointer-events-none border-slate-200 text-slate-400"
+                      : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                  }`}
+                >
+                  Next
+                </Link>
+              </nav>
+            </>
+          ) : (
+            <div className="text-center rounded-md border border-slate-200 bg-white p-4 text-sm text-slate-600">
+              No posts were found for this user.
+            </div>
+          )}
         </section>
       </div>
     </main>
