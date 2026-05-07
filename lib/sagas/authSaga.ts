@@ -10,9 +10,8 @@ import {
   sessionFailed,
   sessionRequested,
   sessionSucceeded,
-  type LoginPayload,
 } from "@/lib/features/auth/authSlice";
-import type { AuthUser } from "@/lib/features/auth/authTypes";
+import type { AuthUser, LoginPayload } from "@/lib/features/auth/authTypes";
 
 type AuthSuccessResponse = {
   user: AuthUser;
