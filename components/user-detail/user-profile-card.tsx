@@ -88,8 +88,8 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
           height={60}
           className="rounded-full border border-slate-200 object-cover"
         />
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-2xl font-semibold text-slate-800">
               {user.firstName} {user.lastName}
             </h1>
@@ -115,10 +115,10 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
               <span>Age:</span>
               <span>{user.age} years old</span>
             </p>
-            <p className="flex items-center gap-2 text-sm text-slate-600">
+            <p className="min-w-0 flex items-center gap-2 text-sm text-slate-600">
               <MetaIcon kind="email" />
               <span>Email:</span>
-              <span className="text-blue-700">{user.email}</span>
+              <span className="min-w-0 break-all text-blue-700">{user.email}</span>
             </p>
           </div>
         </div>

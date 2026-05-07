@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 
+import { FilterSelect } from "@/components/users/filter-select";
 import type { SortState, UsersSearchParams } from "@/components/users/types";
 
 type FilterOptions = {
@@ -40,6 +42,9 @@ export function UsersControls({
   hasActiveFilter,
 }: UsersControlsProps) {
   const filtersKey = `${selectedCity}|${selectedJobTitle}|${selectedGender}`;
+  const [city, setCity] = useState(selectedCity);
+  const [jobTitle, setJobTitle] = useState(selectedJobTitle);
+  const [gender, setGender] = useState(selectedGender);
 
   function makeQueryString(localParams: Record<string, string | undefined>) {
     const query = new URLSearchParams();
@@ -77,7 +82,7 @@ export function UsersControls({
   }
 
   return (
-    <section className="mt-4 space-y-4">
+    <section key={filtersKey} className="mt-4 space-y-4">
       <div className="rounded-xl border border-slate-200 bg-white p-4">
         <div className="flex flex-wrap items-center gap-2">
           <Link
@@ -126,112 +131,58 @@ export function UsersControls({
             <input type="hidden" name="order" value={order} />
           </>
         ) : null}
+        <input type="hidden" name="city" value={city} />
+        <input type="hidden" name="jobTitle" value={jobTitle} />
+        <input type="hidden" name="gender" value={gender} />
 
         <div className="grid gap-3 md:grid-cols-12">
-          <label className="md:col-span-2 space-y-2 text-sm font-medium text-slate-600">
-            <span>City</span>
-            <select
-              key={`city-${filtersKey}`}
-              name="city"
-              defaultValue={selectedCity}
-              onChange={(event) => {
-                const nextValue = event.target.value;
+          <div className="md:col-span-2">
+            <FilterSelect
+              label="City"
+              placeholder="All city"
+              options={filterOptions.cities}
+              value={city}
+              onChange={(nextValue) => {
+                setCity(nextValue);
                 if (nextValue) {
-                  const form = event.currentTarget.form;
-                  const jobTitleSelect = form?.elements.namedItem(
-                    "jobTitle",
-                  ) as HTMLSelectElement | null;
-                  const genderSelect = form?.elements.namedItem(
-                    "gender",
-                  ) as HTMLSelectElement | null;
-                  if (jobTitleSelect) {
-                    jobTitleSelect.value = "";
-                  }
-                  if (genderSelect) {
-                    genderSelect.value = "";
-                  }
+                  setJobTitle("");
+                  setGender("");
                 }
               }}
-              className="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-normal text-slate-700 outline-none transition focus:border-slate-500"
-            >
-              <option value="">All city</option>
-              {filterOptions.cities.map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
-            </select>
-          </label>
+            />
+          </div>
 
-          <label className="md:col-span-4 space-y-2 text-sm font-medium text-slate-600">
-            <span>Title</span>
-            <select
-              key={`jobTitle-${filtersKey}`}
-              name="jobTitle"
-              defaultValue={selectedJobTitle}
-              onChange={(event) => {
-                const nextValue = event.target.value;
+          <div className="md:col-span-4">
+            <FilterSelect
+              label="Title"
+              placeholder="All title"
+              options={filterOptions.jobTitles}
+              value={jobTitle}
+              onChange={(nextValue) => {
+                setJobTitle(nextValue);
                 if (nextValue) {
-                  const form = event.currentTarget.form;
-                  const citySelect = form?.elements.namedItem(
-                    "city",
-                  ) as HTMLSelectElement | null;
-                  const genderSelect = form?.elements.namedItem(
-                    "gender",
-                  ) as HTMLSelectElement | null;
-                  if (citySelect) {
-                    citySelect.value = "";
-                  }
-                  if (genderSelect) {
-                    genderSelect.value = "";
-                  }
+                  setCity("");
+                  setGender("");
                 }
               }}
-              className="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-normal text-slate-700 outline-none transition focus:border-slate-500"
-            >
-              <option value="">All title</option>
-              {filterOptions.jobTitles.map((title) => (
-                <option key={title} value={title}>
-                  {title}
-                </option>
-              ))}
-            </select>
-          </label>
+            />
+          </div>
 
-          <label className="md:col-span-2 space-y-2 text-sm font-medium text-slate-600">
-            <span>Gender</span>
-            <select
-              key={`gender-${filtersKey}`}
-              name="gender"
-              defaultValue={selectedGender}
-              onChange={(event) => {
-                const nextValue = event.target.value;
+          <div className="md:col-span-2">
+            <FilterSelect
+              label="Gender"
+              placeholder="All gender"
+              options={filterOptions.genders}
+              value={gender}
+              onChange={(nextValue) => {
+                setGender(nextValue);
                 if (nextValue) {
-                  const form = event.currentTarget.form;
-                  const citySelect = form?.elements.namedItem(
-                    "city",
-                  ) as HTMLSelectElement | null;
-                  const jobTitleSelect = form?.elements.namedItem(
-                    "jobTitle",
-                  ) as HTMLSelectElement | null;
-                  if (citySelect) {
-                    citySelect.value = "";
-                  }
-                  if (jobTitleSelect) {
-                    jobTitleSelect.value = "";
-                  }
+                  setCity("");
+                  setJobTitle("");
                 }
               }}
-              className="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-normal text-slate-700 outline-none transition focus:border-slate-500"
-            >
-              <option value="">All gender</option>
-              {filterOptions.genders.map((gender) => (
-                <option key={gender} value={gender}>
-                  {gender}
-                </option>
-              ))}
-            </select>
-          </label>
+            />
+          </div>
         </div>
       </form>
 
